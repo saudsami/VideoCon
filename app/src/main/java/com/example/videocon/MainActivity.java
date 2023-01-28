@@ -36,11 +36,11 @@ public class MainActivity extends AppCompatActivity {
     // Fill the App ID of your project generated on Agora Console.
     private final String appId = "9d2498880e934632b38b0a68fa2f1622";
     // Fill the channel name.
-    private String channelName = "";
+    private String channelName = "demo";
     // Fill the temp token generated on Agora Console.
     private String token = "";
     // An integer that identifies the local user.
-    private int uid = 0;
+    private int uid = 10;
     private boolean isJoined = false;
 
     private RtcEngine agoraEngine;
@@ -50,8 +50,8 @@ public class MainActivity extends AppCompatActivity {
     private SurfaceView remoteSurfaceView;
 
     private int tokenRole; // The token role: Broadcaster or Audience
-    private String serverUrl = "https://agora-temp.herokuapp.com";
-    private int tokenExpireTime = 180; // Expire time in Seconds.
+    private String serverUrl = "https://agora-token-service-production-8e40.up.railway.app";
+    private int tokenExpireTime = 600; // Expire time in Seconds.
     private EditText editChannelName; // To read the channel name from the UI.
 
     private static final int PERMISSION_REQ_ID = 22;
@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
     };
 
     private void setupRemoteVideo(int uid) {
-        FrameLayout container = findViewById(R.id.remote_video_view_container);
+        FrameLayout container = findViewById(R.id.small_video_container);
         remoteSurfaceView = new SurfaceView(getBaseContext());
         remoteSurfaceView.setZOrderMediaOverlay(true);
         container.addView(remoteSurfaceView);
@@ -135,12 +135,26 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void setupLocalVideo() {
-        FrameLayout container = findViewById(R.id.local_video_view_container);
+        FrameLayout container = findViewById(R.id.large_video_container);
         // Create a SurfaceView object and add it as a child to the FrameLayout.
         localSurfaceView = new SurfaceView(getBaseContext());
         container.addView(localSurfaceView);
         // Pass the SurfaceView object to Agora so that it renders the local video.
         agoraEngine.setupLocalVideo(new VideoCanvas(localSurfaceView, VideoCanvas.RENDER_MODE_HIDDEN, 0));
+    }
+
+    boolean localInLargeContainer = true;
+    public void swapViews(View view){
+        localInLargeContainer = !localInLargeContainer;
+
+        FrameLayout largeContainer = findViewById(R.id.large_video_container);
+        FrameLayout smallContainer = findViewById(R.id.small_video_container);
+
+        largeContainer.removeAllViews();
+        smallContainer.removeAllViews();
+
+        largeContainer.addView(localInLargeContainer ? localSurfaceView : remoteSurfaceView);
+        smallContainer.addView(!localInLargeContainer ? localSurfaceView : remoteSurfaceView);
     }
 
     public void leaveChannel(View view) {
